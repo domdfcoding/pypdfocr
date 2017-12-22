@@ -60,7 +60,7 @@ def open_file_with_timeout(parser, arg):
     return f
 
 """
-    Make scanned PDFs searchable using Tesseract-OCR and autofile them
+    Make scanned PDFs searchable using Tesseract-OCR
 .. automodule:: pypdfocr
     :private-members:
 """
@@ -82,21 +82,6 @@ class PyPDFOCR(object):
         """ Initializes the GhostScript, Tesseract, and PDF helper classes.
         """
         self.config = {}
-
-    def _get_config_file(self, config_file):
-        """
-           Read in the yaml config file
-
-           :param config_file: Configuration file (YAML format)
-           :type config_file: file
-           :returns: dict of yaml file
-           :rtype: dict
-        """
-        with config_file:
-            myconfig = yaml.load(config_file)
-        return myconfig
-
-
 
     def get_options(self, argv):
         """
@@ -126,16 +111,6 @@ class PyPDFOCR(object):
         p.add_argument('-v', '--verbose', action='store_true',
             default=False, dest='verbose', help='Turn on verbose mode')
 
-        p.add_argument('-l', '--lang',
-            default='eng', dest='lang', help='Language(default eng)')
-
-
-        p.add_argument('--preprocess', action='store_true',
-                default=False, dest='preprocess', help='Enable preprocessing.  Not really useful now with improved Tesseract 3.04+')
-        
-        p.add_argument('--skip-preprocess', action='store_true',
-                default=False, dest='skip_preprocess', help='DEPRECATED: always skips now.')
-
         #---------
         # Single or watch mode
         #--------
@@ -155,16 +130,6 @@ class PyPDFOCR(object):
         self.pdf_filename = args.pdf_filename
         self.lang = args.lang
         self.watch_dir = args.watch_dir
- 
-
-        # Deprecating skip_preprocess to make skipping the default (always true). Tesseract 3.04 is so much better now
-        # at handling non-ideal inputs and lines
-        if args.skip_preprocess:
-            print("Warning: --skip_preprocess is not needed anymore (defaults to skipping preprocessing).  If you want to enable preprocessing, use the new --preprocess option")
-        self.skip_preprocess = True
-
-        if args.preprocess:
-            self.skip_preprocess = False
 
         if self.debug:
             logging.basicConfig(level=logging.DEBUG, format='%(message)s')
@@ -172,21 +137,8 @@ class PyPDFOCR(object):
         if self.verbose:
             logging.basicConfig(level=logging.INFO, format='%(message)s')
 
-        # Parse configuration file (YAML) if specified
-        if args.configfile:
-            self.config = self._get_config_file(args.configfile)
-            logging.debug("Read in configuration file")
-            logging.debug(self.config)
 
         self.watch = False
-
-        if args.watch_dir:
-            logging.debug("Starting to watch")
-            self.watch = True
-
-        if self.enable_email:
-            if not args.configfile:
-                p.error("Please specify a configuration file(CONFIGFILE) to enable email")
 
     def _clean_up_files(self, files):
         """
