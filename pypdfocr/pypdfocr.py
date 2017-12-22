@@ -155,8 +155,7 @@ class PyPDFOCR(object):
         self.pdf_filename = args.pdf_filename
         self.lang = args.lang
         self.watch_dir = args.watch_dir
-        self.match_using_filename = args.match_using_filename
-
+ 
 
         # Deprecating skip_preprocess to make skipping the default (always true). Tesseract 3.04 is so much better now
         # at handling non-ideal inputs and lines
