@@ -128,17 +128,11 @@ class PyPDFOCR(object):
         self.debug = args.debug
         self.verbose = args.verbose
         self.pdf_filename = args.pdf_filename
-        self.lang = args.lang
-        self.watch_dir = args.watch_dir
-
         if self.debug:
             logging.basicConfig(level=logging.DEBUG, format='%(message)s')
 
         if self.verbose:
             logging.basicConfig(level=logging.INFO, format='%(message)s')
-
-
-        self.watch = False
 
     def _clean_up_files(self, files):
         """
@@ -234,8 +228,6 @@ class PyPDFOCR(object):
             The main entry point into PyPDFOCR
 
             #. Parses options
-            #. If filing is enabled, call :func:`_setup_filing`
-            #. If watch is enabled, start the watcher
             #. :func:`run_conversion`
         """
         # Read the command line options
@@ -248,21 +240,8 @@ class PyPDFOCR(object):
         if self.enable_filing:
             self._setup_filing()
 
-        # Do the actual conversion followed by optional filing and email
-        if self.watch:
-            while True:  # Make sure the watcher doesn't terminate
-                try:
-                    py_watcher = PyPdfWatcher(self.watch_dir, self.config.get('watch'))
-                    for pdf_filename in py_watcher.start():
-                        self._convert_and_file_email(pdf_filename)
-                except KeyboardInterrupt:
-                    break
-                except Exception as e:
-                    print traceback.print_exc(e)
-                    py_watcher.stop()
-                    
-        else:
-            self._convert_and_file_email(self.pdf_filename)
+        # Do the actual conversion 
+        self._convert_and_file_email(self.pdf_filename)
 
     def _convert_and_file_email(self, pdf_filename):
         """
